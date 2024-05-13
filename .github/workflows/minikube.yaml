@@ -1,0 +1,29 @@
+name: Deploy to Minikube
+
+on:
+  push:
+    branches:
+      - main  # Adjust this according to your branch name
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Minikube
+      uses: appleboy/setup-minikube@v1
+
+    - name: Build and push Docker image
+      run: |
+        docker build -t your-docker-image:latest .
+        docker tag your-docker-image:latest your-minikube-registry/your-docker-image:latest
+        docker push your-minikube-registry/your-docker-image:latest
+
+    - name: Set kubectl context
+      run: kubectl config use-context minikube
+
+    - name: Deploy to Minikube
+      run: kubectl apply -f your-kubernetes-manifest.yaml
